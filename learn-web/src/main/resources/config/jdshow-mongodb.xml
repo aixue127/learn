@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xmlns:mongo="http://www.springframework.org/schema/data/mongo"
+	   xsi:schemaLocation="http://www.springframework.org/schema/data/mongo
+    	http://www.springframework.org/schema/data/mongo/spring-mongo.xsd
+   	 	http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+	
+	<bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+	           <value>classpath:property/mongodb.properties</value>
+		</property>
+	</bean>
+	
+	<mongo:mongo-client replica-set="${mongo.replicaSet}" id="mongo">
+		<mongo:client-options connect-timeout="${mongo.connectTimeout}"
+			threads-allowed-to-block-for-connection-multiplier="${mongo.threadsAllowedToBlockForConnectionMultiplier}"
+			heartbeat-socket-timeout="${mongo.heartbeatConnectTimeout}"
+			max-connection-idle-time="${mongo.maxConnectionIdleTime}"
+			max-wait-time="${mongo.maxWaitTime}"
+			socket-keep-alive="${mongo.socketKeepAlive}"
+			socket-timeout="${mongo.socketTimeout}"/>
+	</mongo:mongo-client>
+	
+	<!-- <mongo:mongo host="192.168.190.128" port="27050" id="mongo"></mongo:mongo> -->
+	
+	<mongo:db-factory dbname="jdshow" mongo-ref="mongo" id="mongoDbFactory"/>
+	
+	<bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
+		<constructor-arg name="mongoDbFactory" ref="mongoDbFactory"/>
+	</bean>
+	
+</beans>

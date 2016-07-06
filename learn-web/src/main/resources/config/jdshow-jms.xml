@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	   xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+    <bean id="taskExecutor" class="org.springframework.core.task.SimpleAsyncTaskExecutor"/>
+    
+    <bean id="jmsFactoryPooled" class="org.apache.activemq.jms.pool.PooledConnectionFactory" destroy-method="stop">
+    	<property name="connectionFactory">
+    		<bean class="org.apache.activemq.spring.ActiveMQConnectionFactory">
+    			<property name="brokerURL">
+    				<value>failover://(tcp://192.168.190.128:61616)?initialReconnectDelay=10000</value>
+    			</property>
+    			<property name="useAsyncSend" value="true"/>
+    		</bean>
+    	</property>
+    	<property name="maxConnections" value="256"/>
+    	<property name="idleTimeout" value="20000"/>
+    </bean>
+    
+    <!-- save prodType  message container-->
+    <bean id="listenerContainerSaveProdType" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    	<property name="taskExecutor" ref="taskExecutor"/>
+    	<property name="connectionFactory" ref="jmsFactoryPooled"/>
+    	<property name="clientId" value="listenerContainerSaveProdType"/>
+    	<property name="destination">
+    		<bean class="org.apache.activemq.command.ActiveMQQueue">
+    			<constructor-arg name="name" value="jdshow.queue.saveprodtype"/>
+    		</bean>
+    	</property>
+    	<property name="messageListener">
+    		<bean class="com.cn.jdshow.mq.listener.SaveProdTypeListener"/>
+    	</property>
+    </bean>
+</beans>
